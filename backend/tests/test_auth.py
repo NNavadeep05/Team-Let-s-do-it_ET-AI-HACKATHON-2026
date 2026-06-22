@@ -22,7 +22,7 @@ engine = create_async_engine(DATABASE_URL, echo=False)
 @event.listens_for(engine.sync_engine, "connect")
 def add_sqlite_functions(dbapi_connection, connection_record):
     dbapi_connection.create_function("now", 0, lambda: datetime.datetime.utcnow().isoformat())
-    dbapi_connection.create_function("gen_random_uuid", 0, lambda: str(uuid.uuid4()))
+    dbapi_connection.create_function("gen_random_uuid", 0, lambda: uuid.uuid4().hex)
 
 TestingSessionLocal = async_sessionmaker(
     bind=engine,
