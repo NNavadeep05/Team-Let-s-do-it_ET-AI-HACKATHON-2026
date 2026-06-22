@@ -255,8 +255,8 @@ class Chunk(Base):
     __table_args__ = (
         UniqueConstraint("document_id", "chunk_index", name="uq_chunks_document_index"),
         Index("ix_chunks_document", "document_id"),
-        Index("ix_chunks_fts", text("to_tsvector('english', content)"), postgres_using="gin"),
-        Index("ix_chunks_meta", "metadata", postgres_using="gin"),
+        Index("ix_chunks_fts", text("to_tsvector('english', content)"), postgresql_using="gin"),
+        Index("ix_chunks_meta", "metadata", postgresql_using="gin"),
     )
 
     id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
@@ -267,7 +267,7 @@ class Chunk(Base):
     token_count: Mapped[Optional[int]] = mapped_column(Integer)
     section_path: Mapped[Optional[str]] = mapped_column(String)
     qdrant_point_id: Mapped[UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    metadata: Mapped[dict] = mapped_column(JSONB, default={}, nullable=False)
+    chunk_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default={}, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("now()"))
 
     document = relationship("Document", back_populates="chunks")
@@ -277,7 +277,7 @@ class Chunk(Base):
 class Entity(Base):
     __tablename__ = "entities"
     __table_args__ = (
-        Index("ix_entities_name_trgm", "canonical_name", postgres_using="gin", postgres_ops={"canonical_name": "gin_trgm_ops"}),
+        Index("ix_entities_name_trgm", "canonical_name", postgresql_using="gin", postgresql_ops={"canonical_name": "gin_trgm_ops"}),
         Index("ix_entities_type", "entity_type"),
         Index("ix_entities_asset", "asset_id"),
     )
@@ -517,7 +517,7 @@ class AuditLog(Base):
     action: Mapped[str] = mapped_column(String, nullable=False) # e.g. document.upload
     resource_type: Mapped[Optional[str]] = mapped_column(String)
     resource_id: Mapped[Optional[UUID]] = mapped_column(UUID(as_uuid=True))
-    metadata: Mapped[dict] = mapped_column(JSONB, default={}, nullable=False)
+    log_metadata: Mapped[dict] = mapped_column("metadata", JSONB, default={}, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=text("now()"))
 
     user = relationship("User", back_populates="audit_logs")

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
+from app.routers.auth import router as auth_router
 
 def create_app() -> FastAPI:
     app = FastAPI(title="NEURON IQ API", version="1.0")
@@ -13,8 +14,11 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     
+    app.include_router(auth_router, prefix="/api")
+    
     @app.get("/api/health")
     async def health():
         return {"status": "ok", "env": settings.ENV}
         
     return app
+
